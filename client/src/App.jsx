@@ -1,33 +1,41 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import Filecomp from './Filecomp'
+import axios from 'axios'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [filedata , setfiledata] = useState([])
+  const getDataFromServer = async () =>{
+    try {
+      const res= await axios.get('http://localhost:8080/api/file/get')
+      
+      setfiledata(res.data)
+    } catch (error) {
+      console.log("Error fetching data from server:", error);
+      
+    }
+  }
 
+  useEffect(()=>{
+    getDataFromServer()
+  },[])
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <Filecomp getDataFromServer={getDataFromServer} />
+      <hr />
+      {/* files show here */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-4">
+        {filedata.map((el) => (
+          <div key={el._id} className="border p-2 rounded shadow">
+            <img src={`http://localhost:8080/${el.filename}`} alt="" 
+            height={400} 
+            className="w-full h-64 object-cover rounded"/>
+          </div>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+     
     </>
   )
 }
